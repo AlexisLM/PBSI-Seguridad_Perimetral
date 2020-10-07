@@ -1,0 +1,35 @@
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     ns1.becarios.local. root.becarios.local. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+; Commentout below three lines
+;@      IN      NS      localhost.
+;@      IN      A       127.0.0.1
+;@      IN      AAAA    ::1
+
+;Name Server Information
+
+@       IN      NS      ns1.becarios.local.
+
+;IP address of Name Server
+
+ns1     IN      A       192.168.200.138
+
+;Mail Exchanger
+
+;becarios.local.   IN     MX   138   mail.becarios.local.
+
+;A - Record HostName To Ip Address
+
+www     IN       A      192.168.200.138
+
+;CNAME record
+
+ftp     IN      CNAME   www.becarios.local.
