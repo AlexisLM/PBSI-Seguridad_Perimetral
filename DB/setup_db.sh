@@ -51,3 +51,10 @@ mysql_secure_installation
 # Instalamos PostgreSQL
 apt-get install -y postgresql-11 postgresql-client-11
 su - postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD 'hola123.,';\""
+
+#------------------------- Creamos DB para WordPress
+mysql -u root -p"hola123.," -e \
+  "CREATE DATABASE wordpress DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+mysql -u root -p"hola123.," -e \
+  "GRANT ALL ON wordpress.* TO 'wordpress'@'localhost' IDENTIFIED BY 'hola123.,';"
+mysql -u root -p"hola123.," -e "FLUSH PRIVILEGES;"
