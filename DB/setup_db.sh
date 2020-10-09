@@ -7,7 +7,7 @@ NETMASK='255.255.255.0'
 GATEWAY='192.168.20.2'
 DNS="192.168.20.150 ${GATEWAY}"
 DOMAIN='becarios.local'
-HOSTNAME="mail.${DOMAIN}"
+HOSTNAME="db.${DOMAIN}"
 
 echo -e "\nGenerando /etc/network/interfaces..."
 echo "# This file describes the network interfaces available on your system
