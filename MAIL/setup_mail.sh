@@ -34,6 +34,7 @@ echo "domain ${DOMAIN}
 search ${DOMAIN}
 nameserver 192.168.20.150
 nameserver ${GATEWAY}" > /etc/resolv.conf
+chattr +i /etc/resolv.conf
 
 #------------------------- Configuramos el nombre del host
 hostnamectl set-hostname "${HOSTNAME}"
