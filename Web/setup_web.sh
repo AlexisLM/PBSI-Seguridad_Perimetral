@@ -99,7 +99,7 @@ a2ensite wordpress.conf
 a2dissite 000-default
 
 # Habilitamos módulo rewrite
-a2enmod rewrite
+a2enmod rewrite ssl
 
 # Recargamos configuración
 systemctl restart apache2
