@@ -8,6 +8,7 @@ GATEWAY='192.168.20.2'
 DNS="192.168.20.150 ${GATEWAY}"
 DOMAIN='becarios.local'
 HOSTNAME="db.${DOMAIN}"
+IPWEB="192.168.20.120"
 
 echo -e "\nGenerando /etc/network/interfaces..."
 echo "# This file describes the network interfaces available on your system
@@ -57,4 +58,9 @@ mysql -u root -p"hola123.," -e \
   "CREATE DATABASE wordpress DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
 mysql -u root -p"hola123.," -e \
   "GRANT ALL ON wordpress.* TO 'wordpress'@'localhost' IDENTIFIED BY 'hola123.,';"
+mysql -u root -p"hola123.," -e \
+  "GRANT ALL ON wordpress.* TO 'wordpress'@'${IPWEB}' IDENTIFIED BY 'hola123.,';"
 mysql -u root -p"hola123.," -e "FLUSH PRIVILEGES;"
+
+# Configuramos conexiones remotas
+sed -Ei "s/127\.0\.0\.1/${IPADDR}/g" /etc/mysql/mariadb.conf.d/50-server.cnf
