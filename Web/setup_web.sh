@@ -46,7 +46,8 @@ apt-get update
 
 # Instalamos dependencias
 apt-get install -y apache2 php libapache2-mod-php php-mysql php-curl php-gd \
-  php-mbstring php-xml php-xmlrpc php-soap php-intl php-zip curl ed dos2unix
+  php-mbstring php-xml php-xmlrpc php-soap php-intl php-zip curl ed dos2unix \
+  mariadb-client
 
 # Creamos VirtualHost
 echo "
