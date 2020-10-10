@@ -93,6 +93,10 @@ echo "
 </IfModule>
 " > /etc/apache2/sites-available/wordpress.conf
 
+# Movemos certificado y llave ssl
+mv becarios.pem /etc/ssl/certs/
+mv becarios.key /etc/ssl/private/
+
 # Habilitamos sitio
 a2ensite wordpress.conf
 
@@ -139,3 +143,8 @@ sed -i "s/localhost/192.168.20.140/g" /var/www/html/wordpress/wp-config.php
 # Añadimos la siguiente linea
 echo "
 define('FS_METHOD', 'direct');" >> /var/www/html/wordpress/wp-config.php
+
+# Mostramos mensaje en terminal
+echo "=========================================================================
+Continua la instalación en https://${IPADDR}/
+========================================================================="
