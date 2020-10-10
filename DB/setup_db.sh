@@ -64,3 +64,6 @@ mysql -u root -p"hola123.," -e "FLUSH PRIVILEGES;"
 
 # Configuramos conexiones remotas
 sed -Ei "s/127\.0\.0\.1/${IPADDR}/g" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+# Reiniciamos MariaDB
+systemctl restart mysql
