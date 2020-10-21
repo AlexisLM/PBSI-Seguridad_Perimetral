@@ -1,44 +1,12 @@
 #!/bin/bash
 
-#------------------------- Configuramos la dirección IP estática
-IPADDR='192.168.20.110'
+IPADDR='172.16.50.20'
 NETINTERFACE='ens33'
 NETMASK='255.255.255.0'
-GATEWAY='192.168.20.2'
-DNS="192.168.20.150 ${GATEWAY}"
-DOMAIN='becarios.local'
+GATEWAY='172.16.50.5'
+DNS="172.16.50.40"
+DOMAIN='mafia.local'
 HOSTNAME="mail.${DOMAIN}"
-
-echo -e "\nGenerando /etc/network/interfaces..."
-echo "# This file describes the network interfaces available on your system
-# and how to activate them. For more information, see interfaces(5).
-source /etc/network/interfaces.d/*
-# The loopback network interface
-auto lo
-iface lo inet loopback
-auto ${NETINTERFACE}
-iface ${NETINTERFACE} inet static
-        address ${IPADDR}
-        netmask ${NETMASK}
-        gateway ${GATEWAY}
-        dns-nameservers ${DNS}
-" > /etc/network/interfaces
-
-echo "Reiniciando el servicio de red..."
-systemctl restart networking
-
-echo -e "IP ${IPADDR} establecida exitosamente!\n"
-
-#------------------------- Configuramos el dns local
-echo "domain ${DOMAIN}
-search ${DOMAIN}
-nameserver 192.168.20.150
-nameserver ${GATEWAY}" > /etc/resolv.conf
-chattr +i /etc/resolv.conf
-
-#------------------------- Configuramos el nombre del host
-hostnamectl set-hostname "${HOSTNAME}"
-echo "${IPADDR} ${DOMAIN} ${HOSTNAME}" >> /etc/hosts
 
 #------------------------- Instalamos servicio de MAIL
 # Actualizamos repositorios
@@ -49,21 +17,21 @@ apt-get install -y postfix
 
 #------------------------- Configuramos SMTP y SMTPS
 #--------- Configuración de SMTP
-sed -Ei "37s/(myhostname =) (becarios.local)/\1 mail.\2/g" /etc/postfix/main.cf
-sed -i "37 a mydomain = becarios.local" /etc/postfix/main.cf
-sed -Ei "44s/(mynetworks = 127\.0\.0\.0/8).+/\1 192.168.20.0\/24/g" \
+sed -Ei "37s/(myhostname =) .+/\1 mail.mafia.local/g" /etc/postfix/main.cf
+sed -i "37 a mydomain = mafia.local" /etc/postfix/main.cf
+sed -Ei "44s/(mynetworks = 127\.0\.0\.0/8).+/\1 172.16.50.0\/24/g" \
   /etc/postfix/main.cf
+
 
 #--------- Configuración de SMTPS
-# Movemos certificado y llave SSL
-chmod o= becarios.key
-mv becarios.pem /etc/ssl/certs/
-mv becarios.key /etc/ssl/private/
+# Generamos certificados
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/ssl/private/mafia.key -out /etc/ssl/certs/mafia.pem
 
 # Configuramos certificado y llave ssl
-sed -Ei "27s/(smtpd_tls_cert_file=\/etc\/ssl\/certs\/)(.+)/\1becarios.pem/g" \
+sed -Ei "27s/(smtpd_tls_cert_file=\/etc\/ssl\/certs\/)(.+)/\1mafia.pem/g" \
   /etc/postfix/main.cf
-sed -Ei "28s/(smtpd_tls_key_file=\/etc\/ssl\/private\/)(.+)/\1becarios.key/g" \
+sed -Ei "28s/(smtpd_tls_key_file=\/etc\/ssl\/private\/)(.+)/\1mafia.key/g" \
   /etc/postfix/main.cf
 
 # Habilitamos submission (puerto 587)
@@ -119,11 +87,43 @@ sed -Ei "108 a \ \ \ \ group = postfix" /etc/dovecot/conf.d/10-master.conf
 sed -Ei "108 a \ \ \ \ user = postfix" /etc/dovecot/conf.d/10-master.conf
 
 # Configuración ssl.conf
-sed -Ei "12s/(ssl_cert = <).+/\1\/etc\/ssl\/certs\/becarios.pem/g" \
+sed -Ei "12s/(ssl_cert = <).+/\1\/etc\/ssl\/certs\/mafia.pem/g" \
   /etc/dovecot/conf.d/10-ssl.conf
-sed -Ei "13s/(ssl_key = <).+/\1\/etc\/ssl\/private\/becarios.key/g" \
+sed -Ei "13s/(ssl_key = <).+/\1\/etc\/ssl\/private\/mafia.key/g" \
   /etc/dovecot/conf.d/10-ssl.conf
 
 # Reiniciamos los servicios
 systemctl restart postfix
 systemctl restart dovecot
+
+#------------------------- Configuramos la dirección IP estática
+echo -e "\nGenerando /etc/network/interfaces..."
+echo "# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+source /etc/network/interfaces.d/*
+# The loopback network interface
+auto lo
+iface lo inet loopback
+auto ${NETINTERFACE}
+iface ${NETINTERFACE} inet static
+        address ${IPADDR}
+        netmask ${NETMASK}
+        gateway ${GATEWAY}
+        dns-nameservers ${DNS}
+" > /etc/network/interfaces
+
+echo "Reiniciando el servicio de red..."
+systemctl restart networking
+
+echo -e "IP ${IPADDR} establecida exitosamente!\n"
+
+#------------------------- Configuramos el dns local
+echo "domain ${DOMAIN}
+search ${DOMAIN}
+nameserver ${DNS}
+nameserver ${GATEWAY}" > /etc/resolv.conf
+chattr +i /etc/resolv.conf
+
+#------------------------- Configuramos el nombre del host
+hostnamectl set-hostname "${HOSTNAME}"
+echo "${IPADDR} ${HOSTNAME}" >> /etc/hosts
