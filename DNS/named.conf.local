@@ -1,0 +1,25 @@
+//
+// Do any local configuration here
+//
+zone "becarios.local" IN { //Domain name
+
+     type master; //Primary DNS
+
+     file "/etc/bind/forward.becarios.local.db"; //Forward lookup file
+
+     allow-update { none; }; // Since this is the primary DNS, it should be none.
+
+};
+zone "200.168.192.in-addr.arpa" IN { //Reverse lookup name, should match your network in reverse order
+
+     type master; // Primary DNS
+
+     file "/etc/bind/reverse.becarios.local.db"; //Reverse lookup file
+
+     allow-update { none; }; //Since this is the primary DNS, it should be none.
+
+};
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+
